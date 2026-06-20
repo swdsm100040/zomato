@@ -1,0 +1,18 @@
+{
+  "name": "name",
+  "address": "address",
+  "online_order": "online_order",
+  "book_table": "book_table",
+  "rate": "rate",
+  "votes": "votes",
+  "phone": "phone",
+  "location": "location",
+  "rest_type": "rest_type",
+  "dish_liked": "dish_liked",
+  "cuisines": "cuisines",
+  "approx_cost": "approx_cost(for two people)",
+  "reviews_list": "reviews_list",
+  "menu_item": "menu_item",
+  "listed_in_type": "listed_in(type)",
+  "listed_in_city": "listed_in(city)"
+}

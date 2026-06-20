@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zomato AI Discovery — Premium Restaurant Search</title>
+    <!-- Google Fonts: Outfit & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #080b11;
+            --panel-bg: rgba(17, 24, 39, 0.7);
+            --card-bg: rgba(26, 36, 57, 0.45);
+            --accent-color: #ff3e6c;
+            --accent-gradient: linear-gradient(135deg, #ff3e6c 0%, #ff6b8b 100%);
+            --accent-glow: rgba(255, 62, 108, 0.35);
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-focus: rgba(255, 62, 108, 0.5);
+            --input-bg: rgba(17, 24, 39, 0.95);
+            --success-color: #10b981;
+            --success-glow: rgba(16, 185, 129, 0.2);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(255, 62, 108, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(14, 165, 233, 0.08) 0%, transparent 40%);
+            background-attachment: fixed;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        header {
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(8, 11, 17, 0.75);
+            backdrop-filter: blur(20px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.75rem;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, #ffffff 40%, #ff3e6c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            font-weight: 400;
+            max-width: 600px;
+            line-height: 1.5;
+        }
+
+        main {
+            flex: 1;
+            max-width: 1250px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 3rem 1.5rem;
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 2.5rem;
+        }
+
+        @media (max-width: 1024px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Sidebar Control Panel */
+        .control-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 2.25rem;
+            height: fit-content;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(16px);
+            position: sticky;
+            top: 150px;
+        }
+
+        .form-group {
+            margin-bottom: 1.75rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.6rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.85rem 1.1rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: var(--input-bg);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 4px var(--accent-glow);
+            background: #0f172a;
+        }
+
+        /* Budget pill selection */
+        .budget-group {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+        }
+
+        .budget-pill {
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-secondary);
+            padding: 0.65rem 0.5rem;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .budget-pill:hover {
+            border-color: rgba(255, 62, 108, 0.3);
+            color: var(--text-primary);
+        }
+
+        .budget-pill.active {
+            background: var(--accent-gradient);
+            border-color: transparent;
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 62, 108, 0.35);
+        }
+
+        .range-container {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .range-slider {
+            flex: 1;
+            accent-color: var(--accent-color);
+            height: 6px;
+            border-radius: 3px;
+        }
+
+        .range-value {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 1.15rem;
+            color: var(--accent-color);
+            min-width: 2.25rem;
+            text-align: right;
+        }
+
+        .btn-search {
+            width: 100%;
+            padding: 1.1rem;
+            border: none;
+            border-radius: 12px;
+            background: var(--accent-gradient);
+            color: white;
+            font-size: 1.05rem;
+            font-weight: 800;
+            font-family: 'Outfit', sans-serif;
+            letter-spacing: 0.02em;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 24px rgba(255, 62, 108, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+
+        .btn-search:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(255, 62, 108, 0.5);
+            background: linear-gradient(135deg, #ff4f7a 0%, #ff809b 100%);
+        }
+
+        .btn-search:active {
+            transform: translateY(0);
+        }
+
+        /* Results Panel */
+        .results-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, rgba(255, 62, 108, 0.08) 0%, rgba(14, 165, 233, 0.03) 100%);
+            border: 1px solid rgba(255, 62, 108, 0.18);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(12px);
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .summary-card h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--accent-color);
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .summary-card p {
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-size: 1.05rem;
+            font-style: italic;
+        }
+
+        .restaurant-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.75rem;
+        }
+
+        /* Restaurant Cards */
+        .restaurant-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 22px;
+            padding: 2.25rem;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            backdrop-filter: blur(8px);
+            animation: slideUp 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .restaurant-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: var(--accent-gradient);
+            opacity: 0.9;
+        }
+
+        .restaurant-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 62, 108, 0.35);
+            box-shadow: 0 15px 40px rgba(255, 62, 108, 0.12);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1.5rem;
+        }
+
+        .restaurant-name {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.65rem;
+            font-weight: 800;
+            color: white;
+            letter-spacing: -0.02em;
+        }
+
+        .restaurant-rating {
+            background: var(--success-color);
+            color: white;
+            padding: 0.35rem 0.75rem;
+            border-radius: 8px;
+            font-weight: 800;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            box-shadow: 0 4px 10px var(--success-glow);
+        }
+
+        .restaurant-rating.unrated {
+            background: var(--text-muted);
+            box-shadow: none;
+        }
+
+        .card-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.75rem;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 1rem;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .meta-item strong {
+            color: #d1d5db;
+        }
+
+        .cuisine-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+        }
+
+        .cuisine-tag {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-secondary);
+            padding: 0.3rem 0.8rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: capitalize;
+            transition: all 0.2s ease;
+        }
+
+        .cuisine-tag:hover {
+            background: rgba(255, 62, 108, 0.08);
+            border-color: rgba(255, 62, 108, 0.2);
+            color: white;
+        }
+
+        .ai-explanation {
+            background: rgba(255, 62, 108, 0.035);
+            border-left: 3.5px solid var(--accent-color);
+            padding: 1.25rem;
+            border-radius: 0 12px 12px 0;
+            margin-top: 0.5rem;
+            box-shadow: inset 5px 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .ai-explanation h4 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--accent-color);
+            margin-bottom: 0.4rem;
+            font-weight: 800;
+        }
+
+        .ai-explanation p {
+            font-size: 0.98rem;
+            line-height: 1.6;
+            color: #e5e7eb;
+        }
+
+        .backfill-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-secondary);
+            font-size: 0.7rem;
+            padding: 0.35rem 0.85rem;
+            border-bottom-left-radius: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* --- SKELETON LOADER ANIMATIONS --- */
+        @keyframes pulse {
+            0% {
+                background-color: rgba(255, 255, 255, 0.03);
+            }
+            50% {
+                background-color: rgba(255, 255, 255, 0.09);
+            }
+            100% {
+                background-color: rgba(255, 255, 255, 0.03);
+            }
+        }
+
+        .skeleton-container {
+            display: none;
+            flex-direction: column;
+            gap: 1.75rem;
+        }
+
+        .skeleton-header-box {
+            height: 5rem;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+
+        .skeleton-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 22px;
+            padding: 2.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            position: relative;
+        }
+
+        .skeleton-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 22px 0 0 22px;
+        }
+
+        .skeleton-title {
+            height: 1.75rem;
+            width: 50%;
+            border-radius: 6px;
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+
+        .skeleton-rating {
+            position: absolute;
+            top: 2.25rem;
+            right: 2.25rem;
+            height: 1.75rem;
+            width: 3.5rem;
+            border-radius: 6px;
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+
+        .skeleton-meta-row {
+            display: flex;
+            gap: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            padding-bottom: 1rem;
+        }
+
+        .skeleton-meta-item {
+            height: 1rem;
+            width: 25%;
+            border-radius: 4px;
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+
+        .skeleton-tag-row {
+            display: flex;
+            gap: 0.6rem;
+        }
+
+        .skeleton-tag {
+            height: 1.6rem;
+            width: 5rem;
+            border-radius: 999px;
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+
+        .skeleton-ai-box {
+            background: rgba(255, 255, 255, 0.01);
+            border-left: 3.5px solid rgba(255, 255, 255, 0.05);
+            padding: 1.25rem;
+            border-radius: 0 12px 12px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .skeleton-ai-title {
+            height: 0.8rem;
+            width: 8rem;
+            border-radius: 4px;
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+
+        .skeleton-ai-text {
+            height: 2.5rem;
+            width: 100%;
+            border-radius: 6px;
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Empty state & Errors */
+        .empty-state {
+            text-align: center;
+            padding: 5rem 2rem;
+            background: rgba(26, 36, 57, 0.2);
+            border: 2px dashed rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.25rem;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+        }
+
+        .empty-state h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .empty-state p {
+            color: var(--text-secondary);
+            max-width: 450px;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-content">
+            <h1>Zomato AI Discovery</h1>
+            <p>Premium restaurant recommendation assistant combining hard constraints with Groq LLM ranking and reasoning.</p>
+        </div>
+    </header>
+
+    <main>
+        <section class="control-panel">
+            <form id="preferences-form">
+                <div class="form-group">
+                    <label for="location">Location *</label>
+                    <input type="text" id="location" class="form-input" list="location-options" placeholder="Select or type area..." required value="Indiranagar">
+                    <datalist id="location-options">
+                        <!-- Loaded dynamically -->
+                    </datalist>
+                </div>
+                
+                <div class="form-group">
+                    <label>Budget Range</label>
+                    <div class="budget-group">
+                        <div class="budget-pill" data-value="low">Low</div>
+                        <div class="budget-pill active" data-value="medium">Medium</div>
+                        <div class="budget-pill" data-value="high">High</div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="cuisines">Cuisines</label>
+                    <input type="text" id="cuisines" class="form-input" placeholder="e.g. Italian, North Indian" list="cuisine-options">
+                    <datalist id="cuisine-options">
+                        <!-- Loaded dynamically -->
+                    </datalist>
+                </div>
+                
+                <div class="form-group">
+                    <label for="rating">Min Rating</label>
+                    <div class="range-container">
+                        <input type="range" id="rating" class="range-slider" min="0" max="5" step="0.1" value="4.0">
+                        <span id="rating-val" class="range-value">4.0</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="top_k">Recommendation Limit</label>
+                    <input type="number" id="top_k" class="form-input" min="1" max="25" value="5">
+                </div>
+                
+                <div class="form-group">
+                    <label for="free_text">Specific Vibe or Occasion</label>
+                    <textarea id="free_text" class="form-input" rows="3" placeholder="e.g. quiet rooftop, family friendly, date night drinks..." style="resize: none;"></textarea>
+                </div>
+                
+                <button type="submit" class="btn-search">
+                    <span>Explore Recommendations</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </button>
+            </form>
+        </section>
+
+        <section class="results-panel">
+            <!-- SKELETON LOADER -->
+            <div id="skeleton-loader" class="skeleton-container">
+                <div class="skeleton-header-box"></div>
+                <div class="skeleton-card">
+                    <div class="skeleton-title"></div>
+                    <div class="skeleton-rating"></div>
+                    <div class="skeleton-meta-row">
+                        <div class="skeleton-meta-item"></div>
+                        <div class="skeleton-meta-item"></div>
+                    </div>
+                    <div class="skeleton-tag-row">
+                        <div class="skeleton-tag"></div>
+                        <div class="skeleton-tag"></div>
+                    </div>
+                    <div class="skeleton-ai-box">
+                        <div class="skeleton-ai-title"></div>
+                        <div class="skeleton-ai-text"></div>
+                    </div>
+                </div>
+                <div class="skeleton-card">
+                    <div class="skeleton-title"></div>
+                    <div class="skeleton-rating"></div>
+                    <div class="skeleton-meta-row">
+                        <div class="skeleton-meta-item"></div>
+                        <div class="skeleton-meta-item"></div>
+                    </div>
+                    <div class="skeleton-ai-box">
+                        <div class="skeleton-ai-title"></div>
+                        <div class="skeleton-ai-text"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="summary-card" class="summary-card">
+                <h3>AI Slate Summary</h3>
+                <p id="summary-text"></p>
+            </div>
+
+            <div id="restaurant-list" class="restaurant-list">
+                <div class="empty-state">
+                    <span class="empty-state-icon">🔍</span>
+                    <h3>Ready for Exploration</h3>
+                    <p>Select your criteria on the left to invoke the AI discovery pipeline. Results are grounded directly in Zomato catalog data.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const form = document.getElementById('preferences-form');
+        const ratingInput = document.getElementById('rating');
+        const ratingVal = document.getElementById('rating-val');
+        const skeletonLoader = document.getElementById('skeleton-loader');
+        const summaryCard = document.getElementById('summary-card');
+        const summaryText = document.getElementById('summary-text');
+        const listContainer = document.getElementById('restaurant-list');
+        const locationDatalist = document.getElementById('location-options');
+        const cuisineDatalist = document.getElementById('cuisine-options');
+
+        // Handle Budget pill selection
+        let selectedBudget = 'medium';
+        const budgetPills = document.querySelectorAll('.budget-pill');
+        budgetPills.forEach(pill => {
+            pill.addEventListener('click', () => {
+                budgetPills.forEach(p => p.classList.remove('active'));
+                pill.classList.add('active');
+                selectedBudget = pill.getAttribute('data-value');
+            });
+        });
+
+        // Load autocomplete options on startup
+        async function loadAutocompletes() {
+            try {
+                const [locRes, cuiRes] = await Promise.all([
+                    fetch('/locations'),
+                    fetch('/cuisines')
+                ]);
+                if (locRes.ok) {
+                    const locations = await locRes.json();
+                    locationDatalist.innerHTML = locations.map(loc => `<option value="${loc}"></option>`).join('');
+                }
+                if (cuiRes.ok) {
+                    const cuisines = await cuiRes.json();
+                    cuisineDatalist.innerHTML = cuisines.map(cui => `<option value="${cui}"></option>`).join('');
+                }
+            } catch (e) {
+                console.warn('Failed to load autocomplete lists', e);
+            }
+        }
+        window.addEventListener('DOMContentLoaded', loadAutocompletes);
+
+        // Keep rating label synchronized
+        ratingInput.addEventListener('input', (e) => {
+            ratingVal.textContent = parseFloat(e.target.value).toFixed(1);
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Toggle view states to show skeleton loader
+            listContainer.style.display = 'none';
+            summaryCard.style.display = 'none';
+            skeletonLoader.style.display = 'flex';
+            
+            // Gather input criteria
+            const location = document.getElementById('location').value;
+            const cuisinesStr = document.getElementById('cuisines').value;
+            const minRating = parseFloat(document.getElementById('rating').value);
+            const topK = parseInt(document.getElementById('top_k').value);
+            const freeText = document.getElementById('free_text').value;
+            
+            const cuisines = cuisinesStr ? cuisinesStr.split(',').map(c => c.trim()).filter(Boolean) : [];
+            
+            const payload = {
+                location: location,
+                budget_band: selectedBudget || null,
+                cuisines: cuisines,
+                min_rating: minRating,
+                free_text: freeText || null,
+                top_k: topK
+            };
+            
+            try {
+                const response = await fetch('/recommendations?include_debug=true', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.detail || 'API error occurred');
+                }
+                
+                const data = await response.json();
+                
+                // Hide skeleton and clear container
+                skeletonLoader.style.display = 'none';
+                listContainer.innerHTML = '';
+                listContainer.style.display = 'flex';
+                
+                // Update Summary card
+                if (data.summary) {
+                    summaryText.textContent = data.summary;
+                    summaryCard.style.display = 'block';
+                }
+                
+                // Render Cards
+                if (data.items && data.items.length > 0) {
+                    data.items.forEach(item => {
+                        const card = document.createElement('div');
+                        card.className = 'restaurant-card';
+                        
+                        const ratingClass = item.aggregate_rating ? '' : 'unrated';
+                        const ratingText = item.aggregate_rating ? `★ ${item.aggregate_rating}` : 'Not Rated';
+                        const costText = item.cost_for_two ? `INR ${item.cost_for_two} for two` : 'Approx. cost unknown';
+                        const cuisinesHtml = item.cuisines.map(c => `<span class="cuisine-tag">${c}</span>`).join('');
+                        const backfillHtml = item.backfilled ? `<div class="backfill-badge">Fallback Option</div>` : '';
+                        
+                        card.innerHTML = `
+                            ${backfillHtml}
+                            <div class="card-header">
+                                <h2 class="restaurant-name">${item.name}</h2>
+                                <span class="restaurant-rating ${ratingClass}">${ratingText}</span>
+                            </div>
+                            <div class="card-meta">
+                                <div class="meta-item">
+                                    📍 <strong>Area:</strong>&nbsp;${item.location}
+                                </div>
+                                <div class="meta-item">
+                                    💰 <strong>Cost:</strong>&nbsp;${costText}
+                                </div>
+                                ${item.address ? `<div class="meta-item" style="grid-column: 1 / -1;">🏠 <strong>Address:</strong>&nbsp;${item.address}</div>` : ''}
+                            </div>
+                            <div class="cuisine-list">
+                                ${cuisinesHtml}
+                            </div>
+                            <div class="ai-explanation">
+                                <h4>AI Rationale</h4>
+                                <p>${item.explanation}</p>
+                            </div>
+                        `;
+                        listContainer.appendChild(card);
+                    });
+                } else {
+                    listContainer.innerHTML = `
+                        <div class="empty-state">
+                            <span class="empty-state-icon">🍽️</span>
+                            <h3>No Matching Restaurants</h3>
+                            <p>We couldn't find any restaurants matching all filters. Try lowering the minimum rating or selecting a different budget band.</p>
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                skeletonLoader.style.display = 'none';
+                listContainer.innerHTML = '';
+                listContainer.style.display = 'flex';
+                listContainer.innerHTML = `
+                    <div class="empty-state" style="border-color: rgba(255, 62, 108, 0.4); background: rgba(255, 62, 108, 0.03);">
+                        <span class="empty-state-icon">⚠️</span>
+                        <h3 style="color: var(--accent-color);">Failed to retrieve recommendations</h3>
+                        <p>${err.message}</p>
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>

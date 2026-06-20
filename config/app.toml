@@ -1,0 +1,27 @@
+[dataset]
+id = "ManikaSaini/zomato-restaurant-recommendation"
+revision = "main" # Use main branch revision
+
+[filter]
+candidate_cap = 60
+policy = "fixed_bands"
+null_rating_policy = "exclude" # Options: "exclude", "include"
+
+[budget.fixed_bands]
+low_max = 500
+medium_max = 1200
+
+[groq]
+model = "llama-3.3-70b-versatile"
+use_json_object = true
+timeout_seconds = 30
+max_free_text_chars = 500
+
+[api]
+ingest_max_rows = 40000
+locations_max_options = 12000
+
+[streamlit]
+ingest_max_rows = 15000
+locations_max_options = 8000
+page_title = "Zomato RecSys"
